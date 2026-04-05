@@ -5,7 +5,7 @@ A simple password generator written in Swift.
 The project is distributed under the MIT license.
 
 # Simple and strong
-Barentsz Rewritten is a passgen created only with 20 strings of code.
+Barentsz Rewritten is a passgen created only with 36 strings of code.
 It can generate any password.
 
 # Secure
