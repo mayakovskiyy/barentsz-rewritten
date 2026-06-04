@@ -5,13 +5,18 @@ import ArgumentParser
 @main
 struct passgen: ParsableCommand {
     
+    var now = Date()
+    
     var charLib: [String] = ["A", "a", "B", "b", "C", "c", "D", "d", "E", "e", "F", "f", "G", "g", "H", "h", "I", "i", "J", "j", "K", "k", "L", "l", "M", "m", "N", "n", "O", "o", "P", "p", "Q", "q", "R", "r", "S", "s", "T", "t", "U", "u", "V", "v", "W", "w", "X", "x", "Y", "y", "Z", "z", "!", "?", "/", "@", "#", "$", "%", ":", "^", "&", "*", "(", ")", "_", "-", "+", "=", "~", "`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
     
     @Argument(help: "Amount of symbols.")
     var symbAmnt: Int
     
-    @Flag(help: "Copy pwd.")
+    @Flag(help: "Copy password.")
     var copy = false
+    
+    @Flag(help: "Save password.")
+    var save = false
     
     mutating func run() throws {
         var length = ""
@@ -20,12 +25,25 @@ struct passgen: ParsableCommand {
                 length += symbol
             }
         }
-        if copy
-        {
+        if copy {
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
             pasteboard.setString(length, forType: .string)
         }
+        if save {
+            let homeDir = FileManager.default.homeDirectoryForCurrentUser
+            let docsDir = homeDir.appendingPathComponent("Documents", isDirectory: true)
+            let dirURL = docsDir.appendingPathComponent("Passwords", isDirectory: true)
+            try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true, attributes: nil)
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withFullDate, .withFullTime]
+            let fileName = formatter.string(from: now).replacingOccurrences(of: ":", with: "-") + ".txt"
+            let fileURL = dirURL.appendingPathComponent(fileName)
+            
+            try length.write(to: fileURL, atomically: true, encoding: .utf8)
+            print("Password saved to: \(fileURL.path)")
+        }
+        
         print(" ")
         print("Generated Password: \(length)")
         print(" ")
