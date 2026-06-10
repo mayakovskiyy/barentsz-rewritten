@@ -18,11 +18,19 @@ struct passgen: ParsableCommand {
     @Flag(help: "Save password.")
     var save = false
     
+    @Option(name: .shortAndLong, help: "Symbol to exclude from the password")
+    var exclude: String
+    
     mutating func run() throws {
         var length = ""
         for _ in 1...symbAmnt {
-            if let symbol = charLib.randomElement() {
-                length += symbol
+            if var symbol = charLib.randomElement() {
+                if symbol != exclude {
+                    length += symbol
+                } else {
+                    symbol = charLib.randomElement()!
+                    length += symbol
+                }
             }
         }
         if copy {
@@ -34,9 +42,11 @@ struct passgen: ParsableCommand {
             let homeDir = FileManager.default.homeDirectoryForCurrentUser
             let docsDir = homeDir.appendingPathComponent("Documents", isDirectory: true)
             let dirURL = docsDir.appendingPathComponent("Passwords", isDirectory: true)
+            
             try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true, attributes: nil)
             let formatter = ISO8601DateFormatter()
             formatter.formatOptions = [.withFullDate, .withFullTime]
+            
             let fileName = formatter.string(from: now).replacingOccurrences(of: ":", with: "-") + ".txt"
             let fileURL = dirURL.appendingPathComponent(fileName)
             
@@ -47,7 +57,7 @@ struct passgen: ParsableCommand {
         print(" ")
         print("Generated Password: \(length)")
         print(" ")
-        print("Thank you for using Barentsz Rewritten 0.1!")
+        print("Thank you for using Barentsz Rewritten 0.21!")
         print("Support our project on GitHub: https://github.com/mayakovskiyy/barentsz-rewritten")
         print("Or on RNGit: https://git.rn-studio.ru/maya/barentsz-rewritten/\n")
         print("2026, Danketsu Studio©")
